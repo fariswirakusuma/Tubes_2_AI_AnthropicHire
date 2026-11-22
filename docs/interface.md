@@ -78,7 +78,7 @@ Template notebook punya komentar rubric tersembunyi (HTML comment) yang menyebut
 | Awan | KNN, Naive Bayes | `src/models/knn.py`, `src/models/naive_bayes.py` |
 | Ahmad | Decision Tree (pilih ID3/C4.5/CART) | `src/models/decision_tree.py` |
 | Jojo | Logistic Regression (L1/L2/Elastic Net) | `src/models/logistic_regression.py` |
-| Faris | SVM (linear/poly/gaussian) | `src/models/svm.py` |
+| Faris | SVM (linear/poly/gaussian) + versi scikit-learn | `src/models/svm.py`, `src/svm.py` |
 
 ## Checklist model
 

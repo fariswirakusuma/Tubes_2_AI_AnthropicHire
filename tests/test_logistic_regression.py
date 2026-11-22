@@ -102,7 +102,11 @@ def test_constant_feature_produces_finite_probabilities():
     assert np.all(np.isfinite(model.loss_history_))
 
 
-def test_legacy_module_reexports_same_class():
+def test_legacy_logistic_regression_module_still_trains():
     from src.logisticRegression import LogisticRegression as LegacyLogisticRegression
 
-    assert LegacyLogisticRegression is LogisticRegression
+    X, y = _separable_data()
+    model = LegacyLogisticRegression(epochs=300).fit(X, y)
+
+    assert model.predict(X).shape == y.shape
+    assert np.isfinite(model.log_uniconilear)
