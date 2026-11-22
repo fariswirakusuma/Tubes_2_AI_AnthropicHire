@@ -5,10 +5,11 @@ PYTHON := .venv/bin/python
 PIP := .venv/bin/pip
 PYTEST := .venv/bin/pytest
 JUPYTER := .venv/bin/jupyter
+KAGGLE := .venv/bin/kaggle
 
 SEED ?= 42
 NOTEBOOK_MAIN ?= notebooks/00_main_pipeline.ipynb
-SUBMISSION_FILE ?= data/submissions/submission.csv
+SUBMISSION_FILE ?= output/submission.csv
 COMPETITION ?=
 
 help:
@@ -40,9 +41,9 @@ notebook-main:
 kaggle-submit:
 	@test -n "$(COMPETITION)" || (echo "Set COMPETITION=<slug-kompetisi>" && exit 1)
 	@test -f "$(SUBMISSION_FILE)" || (echo "File $(SUBMISSION_FILE) tidak ditemukan" && exit 1)
-	kaggle competitions submit -c $(COMPETITION) -f $(SUBMISSION_FILE) -m "seed=$(SEED) baseline submission"
+	$(KAGGLE) competitions submit -c $(COMPETITION) -f $(SUBMISSION_FILE) -m "seed=$(SEED) baseline submission"
 
 clean:
-	rm -rf .pytest_cache __pycache__
+	rm -rf .pytest_cache __pycache__ notebooks/.ipynb_checkpoints
 	find src tests scripts -type d -name "__pycache__" -exec rm -rf {} +
 	find src tests scripts -type f -name "*.py[cod]" -delete
