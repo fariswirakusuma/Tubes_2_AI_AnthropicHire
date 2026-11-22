@@ -221,3 +221,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Raw Kaggle data (download separately)
+data/raw/
+
+# Generated placeholder submission
+output/submission_baseline.csv
