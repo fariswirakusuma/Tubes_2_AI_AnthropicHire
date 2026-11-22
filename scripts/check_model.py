@@ -66,7 +66,8 @@ def main() -> None:
 
     if hasattr(model, "predict_proba"):
         proba = np.asarray(model.predict_proba(X_val))
-        ok_shape = proba.shape == (len(X_val), 2)
+        n_classes = len(getattr(model, "classes_", np.unique(y_train)))
+        ok_shape = proba.shape == (len(X_val), n_classes)
         ok_sum = np.allclose(proba.sum(axis=1), 1, atol=1e-6)
         print(f"  predict_proba shape ok: {ok_shape} | rows sum to 1: {ok_sum}")
     else:

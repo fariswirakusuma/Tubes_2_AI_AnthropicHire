@@ -1,4 +1,4 @@
-.PHONY: help venv install kernel test lint clean notebook-main kaggle-submit
+.PHONY: help venv install kernel test clean notebook-main kaggle-submit
 
 SHELL := /bin/bash
 PYTHON := .venv/bin/python
@@ -44,5 +44,5 @@ kaggle-submit:
 
 clean:
 	rm -rf .pytest_cache __pycache__
-	find src tests -type d -name "__pycache__" -exec rm -rf {} +
-	find src tests -type f -name "*.py[cod]" -delete
+	find src tests scripts -type d -name "__pycache__" -exec rm -rf {} +
+	find src tests scripts -type f -name "*.py[cod]" -delete

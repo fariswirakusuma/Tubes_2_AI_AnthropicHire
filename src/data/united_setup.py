@@ -173,18 +173,20 @@ class united_setup:
         if TARGET not in df.columns:
             raise ValueError(f"target column '{TARGET}' not found")
 
+        self.clip_bounds_ = {}
         clean = self._engineer(self._clean(df, drop_duplicates=True))
         y = clean[TARGET].to_numpy()
 
         feature_df = clean.drop(columns=[c for c in (ID_COL, TARGET) if c in clean.columns])
         self.feature_names_in_ = list(feature_df.columns)
+        self.n_features_in_ = len(self.feature_names_in_)
 
         num_cols = [c for c in feature_df.columns if pd.api.types.is_numeric_dtype(feature_df[c])]
         cat_cols = [c for c in CATEGORICAL_COLS if c in feature_df.columns]
 
         # Binary / flag columns stay unscaled.
         self.binary_cols_ = [
-            c for c in num_cols if feature_df[c].dropna().isin([0, 1]).all() and c not in num_cols[:0]
+            c for c in num_cols if feature_df[c].dropna().isin([0, 1]).all()
         ]
         self.continuous_cols_ = [c for c in num_cols if c not in self.binary_cols_]
 

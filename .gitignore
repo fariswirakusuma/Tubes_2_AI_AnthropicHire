@@ -227,3 +227,7 @@ data/raw/
 
 # Generated placeholder submission
 output/submission_baseline.csv
+
+# Generated model artifacts
+output/*_v3.pkl
+output/model_comparison.csv
