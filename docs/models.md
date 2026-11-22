@@ -3,9 +3,8 @@
 `src/models/svm.py` (Faris) adalah implementasi SVM from scratch (NumPy);
 `src/svm.py` adalah versi scikit-learn untuk pembanding. Kelima classifier di
 `src/models/` wajib from scratch; scikit-learn hanya dipakai untuk
-preprocessing dan pembanding. `src/logisticRegression.py` (Jojo) tetap
-dipertahankan; gunakan `src.models.LogisticRegression` untuk API yang konsisten
-dengan model lain.
+preprocessing dan pembanding. Logistic Regression from scratch ada di
+`src/models/logistic_regression.py`.
 
 Import semua model dari `src.models`:
 
