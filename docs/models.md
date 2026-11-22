@@ -1,10 +1,9 @@
 # Model from scratch
 
-`src/models/svm.py` (Faris) adalah implementasi SVM from scratch (NumPy);
-`src/svm.py` adalah versi scikit-learn untuk pembanding. Kelima classifier di
-`src/models/` wajib from scratch; scikit-learn hanya dipakai untuk
-preprocessing dan pembanding. Logistic Regression from scratch ada di
-`src/models/logistic_regression.py`.
+`src/models/svm.py` (Faris) adalah implementasi SVM from scratch (NumPy).
+Kelima classifier di `src/models/` wajib from scratch; scikit-learn hanya
+dipakai untuk preprocessing dan pembanding di notebook/`scripts/compare_models.py`.
+Logistic Regression from scratch ada di `src/models/logistic_regression.py`.
 
 Import semua model dari `src.models`:
 

@@ -69,7 +69,7 @@ Baseline sklearn Logistic Regression: val macro F1 **0.7547**.
 | Awan | KNN, Naive Bayes | `src/models/knn.py`, `src/models/naive_bayes.py` |
 | Ahmad | Decision Tree (ID3/C4.5/CART) | `src/models/decision_tree.py` |
 | Jojo | Logistic Regression (L1/L2/Elastic Net) | `src/models/logistic_regression.py` |
-| Faris | SVM (linear/poly/gaussian) + versi scikit-learn | `src/models/svm.py`, `src/svm.py` |
+| Faris | SVM (linear/poly/gaussian) | `src/models/svm.py` |
 
 Aturan kerja lengkap ada di `docs/interface.md`, rencana per tanggal di
 `docs/team-handoff.md`, dan temuan data di `docs/eda-summary.md`.
