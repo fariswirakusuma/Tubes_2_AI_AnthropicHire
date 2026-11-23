@@ -24,8 +24,6 @@ class KNN(PersistableMixin):
         self.y_ = np.asarray(y)
         self.classes_ = np.unique(self.y_)
         self.n_features_in_ = self.X_.shape[1]
-        self.val_neighbor_dists = None
-        self.val_neighbor_indices = None
         return self
 
     # ------------------------------------------------------------ distances
@@ -72,8 +70,6 @@ class KNN(PersistableMixin):
             idxs[s : s + block] = part
             dists[s : s + block] = D[rows, part]
 
-        self.val_neighbor_dists = dists
-        self.val_neighbor_indices = idxs
         return dists, idxs
 
     # -------------------------------------------------------------- predict

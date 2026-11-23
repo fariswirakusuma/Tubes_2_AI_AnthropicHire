@@ -25,15 +25,15 @@ def test_predict_proba_rows_sum_to_one():
     assert np.allclose(proba.sum(axis=1), 1.0)
 
 
-def test_default_minkowski_order_is_seven():
+def test_default_distance_is_euclidean():
     X = np.array([[0.0, 0.0], [1.0, 2.0]])
     y = np.array([0, 1])
 
     model = KNN(k=1).fit(X, y)
     distances = model.pairwise_distances(np.array([[0.0, 0.0]]))
 
-    expected = (1.0**7 + 2.0**7) ** (1.0 / 7.0)
-    assert model.p == 7
+    expected = np.hypot(1.0, 2.0)
+    assert model.p == 2
     assert distances.shape == (1, 2)
     assert distances[0, 1] == pytest.approx(expected)
 
@@ -50,14 +50,17 @@ def test_kneighbors_returns_sorted_distances_and_indices():
     assert indices.tolist() == [[0, 1]]
 
 
-def test_predict_exposes_val_neighbor_dists():
-    X = np.array([[0.0], [1.0], [5.0], [10.0]])
-    y = np.array([0, 0, 1, 1])
+def test_minkowski_distance_supports_custom_order():
+    X = np.array([[0.0, 0.0], [1.0, 2.0]])
+    y = np.array([0, 1])
 
-    model = KNN(k=2).fit(X, y)
-    model.predict(X)
+    manhattan = KNN(k=1, p=1).fit(X, y)
+    assert manhattan.pairwise_distances(np.array([[0.0, 0.0]]))[0, 1] == pytest.approx(3.0)
 
-    assert model.val_neighbor_dists.shape == (4, 2)
+    p3 = KNN(k=1, p=3).fit(X, y)
+    assert p3.pairwise_distances(np.array([[0.0, 0.0]]))[0, 1] == pytest.approx(
+        (1.0**3 + 2.0**3) ** (1.0 / 3.0)
+    )
 
 
 def test_invalid_weights_rejected():

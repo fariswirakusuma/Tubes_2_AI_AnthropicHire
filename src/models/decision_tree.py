@@ -58,8 +58,6 @@ class DecisionTree(PersistableMixin):
 
         root = self._build(np.arange(len(self._binned_)), depth=0)
         self.root_ = root
-        self.tree_escrowstate_score_trig = float(root.score)
-        self.tree_escrowstate_score_trig_ = self.tree_escrowstate_score_trig
         self._compute_importances()
         return self
 

@@ -20,8 +20,6 @@ def test_linear_kernel_separates_two_classes():
     model = SVM(kernel="linear", C=1.0).fit(X, y)
 
     assert np.mean(model.predict(X) == y) == 1.0
-    assert isinstance(model.slack_total, float)
-    assert model.slack_total >= 0.0
 
 
 def test_gaussian_kernel_handles_non_linear_data():

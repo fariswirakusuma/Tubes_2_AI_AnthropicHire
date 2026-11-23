@@ -13,7 +13,8 @@ def test_numeric_tree_fits_simple_split():
     pred = model.predict(np.array([[0.5], [10.5]]))
 
     assert pred.tolist() == [0, 1]
-    assert isinstance(model.tree_escrowstate_score_trig, float)
+    assert isinstance(model.root_.score, float)
+    assert model.root_.score > 0.0
 
 
 def test_tree_handles_categorical_values_and_missing():

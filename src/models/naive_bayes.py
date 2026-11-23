@@ -34,7 +34,7 @@ class NaiveBayes(PersistableMixin):
         else:
             self.class_prior_ = self.class_count_ / n_samples
 
-        self.bayesian_disweighting = np.log(self.class_prior_)
+        self.class_log_prior_ = np.log(self.class_prior_)
 
         self.theta_ = np.zeros((n_classes, n_features), dtype=np.float64)
         self.var_ = np.zeros((n_classes, n_features), dtype=np.float64)
@@ -48,10 +48,6 @@ class NaiveBayes(PersistableMixin):
         self.epsilon_ = epsilon
         self.var_ += epsilon
 
-        log_proba = self.predict_log_proba(X)
-        self.negative_log_likelihood_ = float(
-            -np.mean(log_proba[np.arange(n_samples), y_idx])
-        )
         self.n_features_in_ = n_features
         return self
 
@@ -61,7 +57,7 @@ class NaiveBayes(PersistableMixin):
         for c in range(len(self.classes_)):
             var = self.var_[c]
             diff = X - self.theta_[c]
-            joint[:, c] = self.bayesian_disweighting[c] - 0.5 * np.sum(
+            joint[:, c] = self.class_log_prior_[c] - 0.5 * np.sum(
                 np.log(2.0 * np.pi * var) + diff**2 / var, axis=1
             )
         return joint
@@ -124,7 +120,7 @@ class CategoricalNaiveBayes(NaiveBayes):
             self.class_prior_ = prior / prior.sum()
         else:
             self.class_prior_ = self.class_count_ / n_samples
-        self.bayesian_disweighting = np.log(self.class_prior_)
+        self.class_log_prior_ = np.log(self.class_prior_)
 
         self.edges_ = self._make_edges(X)
         B = self._digitize(X)
@@ -140,14 +136,12 @@ class CategoricalNaiveBayes(NaiveBayes):
                     (counts + self.alpha) / (self.class_count_[c] + self.alpha * m)
                 )
 
-        log_proba = self.predict_log_proba(X)
-        self.negative_log_likelihood_ = float(-np.mean(log_proba[np.arange(n_samples), y_idx]))
         self.n_features_in_ = n_features
         return self
 
     def _joint_log_likelihood(self, X: np.ndarray) -> np.ndarray:
         B = self._digitize(X)
-        joint = np.tile(self.bayesian_disweighting, (len(B), 1))
+        joint = np.tile(self.class_log_prior_, (len(B), 1))
         for j in range(B.shape[1]):
             joint += self.log_theta_[j][:, B[:, j]].T
         return joint

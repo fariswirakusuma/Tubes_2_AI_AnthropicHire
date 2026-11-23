@@ -61,16 +61,9 @@ Distribusi identik (tahun, bulan, mean fitur, missing rate) → **split acak, bu
 
 1. Split dulu (stratified 80/20, seed 42), baru fit preprocessing di train.
 2. Imputasi: median untuk numerik, modus untuk kategorikal + flag `*_is_missing` untuk 8 kolom.
-3. Feature engineering: `total_nights`, `total_guests`, **`rate_per_guest_night`** (nama wajib dari rubric template), `prior_cancel_ratio`, `has_prior_history`, `arrival_quarter`, `is_weekend_heavy`, `days_before_arrival_log`.
+3. Feature engineering: `total_nights`, `total_guests`, `nightly_rate_per_guest`, `prior_cancel_ratio`, `has_prior_history`, `arrival_quarter`, `is_weekend_heavy`, `days_before_arrival_log`.
 4. Encoding: one-hot untuk 3 kategorikal low-card (`meal_package`, `room_category`, `booking_channel`); `needs_parking` sudah biner.
 5. Scaling: StandardScaler untuk model berbasis jarak/linear (KNN, LR, SVM); tree tidak butuh.
-6. Seleksi fitur: variance threshold + mutual information; RFE opsional (mahal).
+6. Seleksi fitur: variance threshold + mutual information.
 7. PCA: simpan sebagai opsi, fit di train setelah scaling; tree biasanya tidak diuntungkan.
 8. Class balance: laporkan, jangan resample dulu; optimalkan threshold di validasi untuk macro F1.
-
-## Catatan rubric dari template notebook
-
-- `rate_per_guest_night` harus ada sebagai nama kolom.
-- Section Preparation Pipeline harus punya variabel `fitted_prep_steps` (dan `steps`).
-- Artifact model: `<model>_v3.pkl`.
-- Figure palette untuk perbandingan model: `#6d2fa3`.

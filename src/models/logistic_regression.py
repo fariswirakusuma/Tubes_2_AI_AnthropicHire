@@ -114,8 +114,6 @@ class LogisticRegression(PersistableMixin):
         self.weights_ = W
         self.coef_ = W[1:].T
         self.intercept_ = W[0]
-        self.log_uniconilear = float(self.loss_history_[-1])
-        self.log_uniconilear_ = self.log_uniconilear
         self.n_iter_ = len(self.loss_history_)
         return self
 

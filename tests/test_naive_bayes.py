@@ -20,8 +20,8 @@ def test_gaussian_nb_fits_two_classes():
     model = NaiveBayes().fit(X, y)
 
     assert model.predict(X).tolist() == y.tolist()
-    assert model.bayesian_disweighting.shape == (2,)
-    assert np.isfinite(model.negative_log_likelihood_)
+    assert model.class_log_prior_.shape == (2,)
+    assert np.all(np.isfinite(model.predict_log_proba(X)))
 
 
 def test_predict_proba_rows_sum_to_one():
@@ -76,7 +76,7 @@ def test_balanced_class_weight_normalizes_priors():
     model = NaiveBayes(class_weight="balanced").fit(X, y)
 
     assert model.class_prior_.sum() == pytest.approx(1.0)
-    assert np.allclose(np.exp(model.bayesian_disweighting), model.class_prior_)
+    assert np.allclose(np.exp(model.class_log_prior_), model.class_prior_)
 
 
 def test_custom_class_prior_is_normalized():

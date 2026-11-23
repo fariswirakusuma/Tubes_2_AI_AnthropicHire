@@ -2,13 +2,13 @@
 
 Owner: Anggota 1 (Data dan Integrasi).
 
-The class `united_setup` is the single entry point every model uses:
+The class `DataPreprocessor` is the single entry point every model uses:
 
-    setup = united_setup()
-    train_set, val_set = setup.split(train_df)
-    X_train, y_train = setup.fit_transform(train_set)
-    X_val = setup.transform(val_set)
-    X_test = setup.transform(test_df)
+    prep = DataPreprocessor()
+    train_set, val_set = prep.split(train_df)
+    X_train, y_train = prep.fit_transform(train_set)
+    X_val = prep.transform(val_set)
+    X_test = prep.transform(test_df)
 
 Every statistic (imputer, encoder, scaler, outlier bounds, selector, PCA) is
 fitted on the training split only. `transform` never refits.
@@ -62,7 +62,7 @@ MISSING_FLAG_COLS = [
 ]
 
 
-class united_setup:
+class DataPreprocessor:
     """Configuration + fitted preprocessing pipeline for the hotel dataset."""
 
     def __init__(
@@ -151,8 +151,7 @@ class united_setup:
         out["is_high_season"] = out["arrival_month"].isin([6, 7, 8, 12]).astype(int)
         out["days_before_arrival_log"] = np.log1p(out["days_before_arrival"].clip(lower=0))
 
-        # Required by the notebook rubric: rate per guest per night.
-        out["rate_per_guest_night"] = out["nightly_rate_idr"] / total_guests.replace(0, np.nan)
+        out["nightly_rate_per_guest"] = out["nightly_rate_idr"] / total_guests.replace(0, np.nan)
         out["total_room_cost"] = out["nightly_rate_idr"] * total_nights.replace(0, np.nan)
         out["cost_per_guest"] = out["total_room_cost"] / total_guests.replace(0, np.nan)
 
@@ -169,7 +168,7 @@ class united_setup:
         return out
 
     # ------------------------------------------------------------------ fit
-    def fit(self, df: pd.DataFrame) -> "united_setup":
+    def fit(self, df: pd.DataFrame) -> "DataPreprocessor":
         if TARGET not in df.columns:
             raise ValueError(f"target column '{TARGET}' not found")
 
@@ -306,7 +305,7 @@ class united_setup:
         joblib.dump(self, path)
 
     @staticmethod
-    def load(path: str | Path) -> "united_setup":
+    def load(path: str | Path) -> "DataPreprocessor":
         return joblib.load(path)
 
     def summary(self) -> pd.DataFrame:

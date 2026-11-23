@@ -229,5 +229,5 @@ data/raw/
 output/submission_baseline.csv
 
 # Generated model artifacts
-output/*_v3.pkl
+output/*.pkl
 output/model_comparison.csv

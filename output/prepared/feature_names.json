@@ -13,7 +13,7 @@
   "total_guests",
   "arrival_quarter",
   "days_before_arrival_log",
-  "rate_per_guest_night",
+  "nightly_rate_per_guest",
   "total_room_cost",
   "cost_per_guest",
   "requests_per_guest",

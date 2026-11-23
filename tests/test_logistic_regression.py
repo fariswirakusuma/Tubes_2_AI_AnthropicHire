@@ -26,8 +26,8 @@ def test_l2_fits_separable_data():
     ).fit(X, y)
 
     assert model.predict(X).tolist() == y.tolist()
-    assert isinstance(model.log_uniconilear, float)
-    assert np.isfinite(model.log_uniconilear)
+    assert isinstance(model.loss_history_[-1], float)
+    assert np.isfinite(model.loss_history_[-1])
 
 
 def test_predict_proba_rows_sum_to_one():
@@ -50,7 +50,7 @@ def test_all_regularization_variants_run():
         ).fit(X, y)
         proba = model.predict_proba(X)
         assert np.all(np.isfinite(proba))
-        assert np.isfinite(model.log_uniconilear)
+        assert np.isfinite(model.loss_history_[-1])
 
 
 def test_multiclass_softmax():

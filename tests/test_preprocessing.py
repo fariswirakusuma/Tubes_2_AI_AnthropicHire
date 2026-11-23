@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.data.united_setup import ID_COL, TARGET, united_setup
+from src.data.preprocessing import DataPreprocessor, ID_COL, TARGET
 
 
 def _raw_frame(n: int = 96, seed: int = 0) -> pd.DataFrame:
@@ -50,11 +50,11 @@ def _raw_frame(n: int = 96, seed: int = 0) -> pd.DataFrame:
 @pytest.fixture()
 def prepared():
     frame = _raw_frame()
-    setup = united_setup(seed=42, select_k=5)
-    train, val = setup.split(frame)
-    X_train, y_train = setup.fit_transform(train)
-    X_val = setup.transform(val)
-    return setup, train, val, X_train, y_train, X_val
+    prep = DataPreprocessor(seed=42, select_k=5)
+    train, val = prep.split(frame)
+    X_train, y_train = prep.fit_transform(train)
+    X_val = prep.transform(val)
+    return prep, train, val, X_train, y_train, X_val
 
 
 def test_split_is_stratified_and_disjoint(prepared):
@@ -66,44 +66,44 @@ def test_split_is_stratified_and_disjoint(prepared):
 
 
 def test_fit_transform_produces_clean_aligned_matrix(prepared):
-    setup, train, _, X_train, y_train, _ = prepared
+    prep, train, _, X_train, y_train, _ = prepared
 
     assert X_train.shape[0] == len(train) == len(y_train)
     assert X_train.dtype == np.float64
     assert np.isfinite(X_train).all()
-    assert X_train.shape[1] == setup.select_k == 5
-    assert len(setup.feature_names_out_) == X_train.shape[1]
-    assert "rate_per_guest_night" in setup.feature_names_in_
-    assert "num_adults_is_missing" in setup.feature_names_in_
+    assert X_train.shape[1] == prep.select_k == 5
+    assert len(prep.feature_names_out_) == X_train.shape[1]
+    assert "nightly_rate_per_guest" in prep.feature_names_in_
+    assert "num_adults_is_missing" in prep.feature_names_in_
 
 
 def test_transform_validation_and_unknown_category(prepared):
-    setup, _, val, X_train, _, X_val = prepared
+    prep, _, val, X_train, _, X_val = prepared
 
     assert X_val.shape == (len(val), X_train.shape[1])
     assert np.isfinite(X_val).all()
 
     unseen = val.copy()
     unseen["meal_package"] = "never-seen"
-    assert setup.transform(unseen).shape == X_val.shape
+    assert prep.transform(unseen).shape == X_val.shape
 
 
 def test_fit_is_deterministic_and_pickle_roundtrip(tmp_path, prepared):
-    setup, train, val, X_train, _, X_val = prepared
+    prep, train, val, X_train, _, X_val = prepared
 
-    again = united_setup(seed=42, select_k=5).fit(train)
+    again = DataPreprocessor(seed=42, select_k=5).fit(train)
     np.testing.assert_allclose(again.transform(val), X_val)
 
-    path = tmp_path / "setup.pkl"
-    setup.save(path)
-    loaded = united_setup.load(path)
+    path = tmp_path / "preprocessor.pkl"
+    prep.save(path)
+    loaded = DataPreprocessor.load(path)
     np.testing.assert_allclose(loaded.transform(val), X_val)
-    assert loaded.feature_names_out_ == setup.feature_names_out_
+    assert loaded.feature_names_out_ == prep.feature_names_out_
 
 
 def test_summary_lists_selected_features(prepared):
-    setup, _, _, X_train, _, _ = prepared
-    summary = setup.summary()
+    prep, _, _, X_train, _, _ = prepared
+    summary = prep.summary()
 
     assert len(summary) == X_train.shape[1]
     assert summary["mutual_information"].is_monotonic_decreasing
@@ -111,15 +111,15 @@ def test_summary_lists_selected_features(prepared):
 
 def test_pca_option_changes_feature_names():
     frame = _raw_frame()
-    setup = united_setup(seed=42, select_k=8, use_pca=True, pca_variance=0.9)
-    train, _ = setup.split(frame)
-    X_train, _ = setup.fit_transform(train)
+    prep = DataPreprocessor(seed=42, select_k=8, use_pca=True, pca_variance=0.9)
+    train, _ = prep.split(frame)
+    X_train, _ = prep.fit_transform(train)
 
-    assert X_train.shape[1] == setup.pca_.n_components_
-    assert all(name.startswith("pc_") for name in setup.feature_names_out_)
+    assert X_train.shape[1] == prep.pca_.n_components_
+    assert all(name.startswith("pc_") for name in prep.feature_names_out_)
 
 
 def test_fit_requires_target_column():
     frame = _raw_frame().drop(columns=[TARGET])
     with pytest.raises(ValueError, match="target column"):
-        united_setup().fit(frame)
+        DataPreprocessor().fit(frame)

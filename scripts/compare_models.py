@@ -47,7 +47,7 @@ def run(name: str, model, X_train, y_train, X_val, y_val, results: list, save: b
     )
     print(f"{name:<34} fit={fit_s:7.2f}s  pred={pred_s:7.2f}s  macro-F1={score:.4f}")
     if save:
-        model.save(OUT / f"{name.replace(' ', '_').lower()}_v3.pkl")
+        model.save(OUT / f"{name.replace(' ', '_').lower()}.pkl")
     return model
 
 
@@ -67,7 +67,7 @@ def main() -> None:
 
     run(
         "knn_scratch",
-        KNN(k=5, p=7, weights="distance"),
+        KNN(k=5, p=2, weights="distance"),
         X_train[knn_idx],
         y_train[knn_idx],
         X_val[val_idx],
@@ -76,7 +76,7 @@ def main() -> None:
     )
     run(
         "knn_sklearn",
-        KNeighborsClassifier(n_neighbors=5, p=7, weights="distance", n_jobs=-1),
+        KNeighborsClassifier(n_neighbors=5, p=2, weights="distance", n_jobs=-1),
         X_train[knn_idx],
         y_train[knn_idx],
         X_val[val_idx],

@@ -90,7 +90,6 @@ class SVM(PersistableMixin):
             "support": support,
             "support_vectors": X[support],
             "dual_coef": y_pm[support],
-            "slack": float(np.sum(np.maximum(0.0, 1.0 - y_pm * decision))),
         }
 
     def _fit_kernel(self, X: np.ndarray, y: np.ndarray, pos, neg):
@@ -111,7 +110,6 @@ class SVM(PersistableMixin):
                     b += self.learning_rate * y_pm[i]
                     f += self.learning_rate * y_pm[i] * K[:, i] + self.learning_rate * y_pm[i]
 
-        decision = K @ (alpha * y_pm) + b
         support = np.flatnonzero(alpha > 1e-6)
         return {
             "kind": "kernel",
@@ -123,7 +121,6 @@ class SVM(PersistableMixin):
             "support": support,
             "support_vectors": Xb[support],
             "dual_coef": (alpha * y_pm)[support],
-            "slack": float(np.sum(np.maximum(0.0, 1.0 - y_pm * decision))),
         }
 
     def _fit_binary(self, X: np.ndarray, y: np.ndarray, pos, neg):
@@ -151,7 +148,6 @@ class SVM(PersistableMixin):
                         self._fit_binary(X[mask], y01, self.classes_[j], self.classes_[i])
                     )
 
-        self.slack_total = float(sum(est["slack"] for est in self.estimators_))
         if len(self.estimators_) == 1:
             est = self.estimators_[0]
             self.support_ = est["support"]

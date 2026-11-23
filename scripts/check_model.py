@@ -6,7 +6,7 @@ Usage, from the project root:
     .venv/bin/python scripts/check_model.py src.models.svm:SVM --name svm --save
 
 It loads the prepared split, fits the class, prints macro F1 on validation,
-checks predict_proba, and optionally saves output/<name>_v3.pkl.
+checks predict_proba, and optionally saves output/<name>.pkl.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def load_target(spec: str):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("target", help="module:Class, e.g. src.models.knn:KNN")
-    parser.add_argument("--name", help="artifact name, saves output/<name>_v3.pkl")
+    parser.add_argument("--name", help="artifact name, saves output/<name>.pkl")
     parser.add_argument("--save", action="store_true")
     args = parser.parse_args()
 
@@ -75,7 +75,7 @@ def main() -> None:
 
     if args.save:
         name = args.name or args.target.split(":")[-1].lower()
-        path = ROOT / "output" / f"{name}_v3.pkl"
+        path = ROOT / "output" / f"{name}.pkl"
         joblib.dump(model, path)
         print(f"  saved: {path}")
 
