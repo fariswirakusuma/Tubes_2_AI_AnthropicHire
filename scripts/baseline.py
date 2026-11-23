@@ -25,7 +25,7 @@ OUT.mkdir(exist_ok=True)
 train_df = pd.read_csv(RAW / "train.csv", dtype={ID_COL: str})
 test_df = pd.read_csv(RAW / "test.csv", dtype={ID_COL: str})
 
-prep = DataPreprocessor(seed=42, select_k=40)
+prep = DataPreprocessor(seed=42, select_k=38)
 train_set, val_set = prep.split(train_df)
 print(f"train_set: {train_set.shape} | val_set: {val_set.shape}")
 print(f"target rate -> train {train_set[TARGET].mean():.4f} | val {val_set[TARGET].mean():.4f}")
@@ -37,7 +37,7 @@ X_test = prep.transform(test_df)
 
 print(f"\nX_train {X_train.shape} | X_val {X_val.shape} | X_test {X_test.shape}")
 print(f"NaN in X_train: {np.isnan(X_train).sum()} | NaN in X_val: {np.isnan(X_val).sum()} | NaN in X_test: {np.isnan(X_test).sum()}")
-print(f"features kept: {X_train.shape[1]} (select_k=40)")
+print(f"features kept: {X_train.shape[1]} (select_k=38)")
 
 print("\nTop features by mutual information:")
 print(prep.summary().head(12).to_string(index=False))

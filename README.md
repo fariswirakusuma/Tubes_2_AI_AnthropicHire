@@ -14,7 +14,7 @@ from scratch untuk kompetisi Kaggle `T2-IF3170-2026-2027` (metrik macro F1).
 | `scripts/baseline.py` | smoke test pipeline + submission placeholder |
 | `notebooks/00_main_pipeline.ipynb` | template notebook tugas besar |
 | `docs/` | ringkasan EDA |
-| `output/prepared/` | split siap pakai (train/val/test `.npz`, 40 fitur) |
+| `output/prepared/` | split siap pakai (train/val/test `.npz`, 38 fitur) |
 
 ## Aturan implementasi
 
@@ -37,10 +37,10 @@ Split yang sudah diproses tersedia di `output/prepared/`:
 
 | File | Isi |
 |---|---|
-| `train.npz` | `X` (21898 × 40), `y` |
-| `val.npz` | `X` (5475 × 40), `y` |
-| `test.npz` | `X` (6844 × 40), `ids` |
-| `feature_names.json` | urutan 40 fitur |
+| `train.npz` | `X` (21898 × 38), `y` |
+| `val.npz` | `X` (5475 × 38), `y` |
+| `test.npz` | `X` (6844 × 38), `ids` |
+| `feature_names.json` | urutan 38 fitur |
 | `preprocessor.pkl` | objek preprocessing yang sudah fit |
 
 Kalau tidak mengubah pipeline, tidak perlu download ulang.

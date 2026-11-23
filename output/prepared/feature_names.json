@@ -9,8 +9,6 @@
   "prior_completed_bookings",
   "nightly_rate_idr",
   "special_requests",
-  "total_nights",
-  "total_guests",
   "arrival_quarter",
   "days_before_arrival_log",
   "nightly_rate_per_guest",

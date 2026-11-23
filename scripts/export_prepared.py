@@ -29,7 +29,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 train_df = pd.read_csv(RAW / "train.csv", dtype={ID_COL: str})
 test_df = pd.read_csv(RAW / "test.csv", dtype={ID_COL: str})
 
-prep = DataPreprocessor(seed=42, select_k=40)
+prep = DataPreprocessor(seed=42, select_k=38)
 train_set, val_set = prep.split(train_df)
 
 X_train, y_train = prep.fit_transform(train_set)

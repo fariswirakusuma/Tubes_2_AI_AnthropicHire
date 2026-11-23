@@ -61,7 +61,7 @@ Distribusi identik (tahun, bulan, mean fitur, missing rate) → **split acak, bu
 
 1. Split dulu (stratified 80/20, seed 42), baru fit preprocessing di train.
 2. Imputasi: median untuk numerik, modus untuk kategorikal + flag `*_is_missing` untuk 8 kolom.
-3. Feature engineering: `total_nights`, `total_guests`, `nightly_rate_per_guest`, `prior_cancel_ratio`, `has_prior_history`, `arrival_quarter`, `is_weekend_heavy`, `days_before_arrival_log`.
+3. Feature engineering: `nightly_rate_per_guest`, `prior_cancel_ratio`, `has_prior_history`, `arrival_quarter`, `is_weekend_heavy`, `days_before_arrival_log`.
 4. Encoding: one-hot untuk 3 kategorikal low-card (`meal_package`, `room_category`, `booking_channel`); `needs_parking` sudah biner.
 5. Scaling: StandardScaler untuk model berbasis jarak/linear (KNN, LR, SVM); tree tidak butuh.
 6. Seleksi fitur: variance threshold + mutual information.

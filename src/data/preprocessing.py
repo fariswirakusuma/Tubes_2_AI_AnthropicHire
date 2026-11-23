@@ -63,7 +63,7 @@ MISSING_FLAG_COLS = [
 
 
 class DataPreprocessor:
-    """Configuration + fitted preprocessing pipeline for the hotel dataset."""
+    """Fitted preprocessing pipeline for the hotel dataset."""
 
     def __init__(
         self,
@@ -71,7 +71,7 @@ class DataPreprocessor:
         val_size: float = 0.2,
         clip_outliers: bool = True,
         clip_quantiles: tuple[float, float] = (0.01, 0.99),
-        select_k: int | None = 40,
+        select_k: int | None = 38,
         use_pca: bool = False,
         pca_variance: float = 0.95,
         mi_sample: int = 6000,
@@ -140,25 +140,26 @@ class DataPreprocessor:
         """Derived attributes. Must stay row-wise so train/test behave alike."""
         out = df.copy()
 
-        total_nights = out["weekend_nights"].fillna(0) + out["weekday_nights"].fillna(0)
-        total_guests = out["num_adults"].fillna(0) + out["num_children"].fillna(0)
+        stay_nights = (out["weekend_nights"].fillna(0) + out["weekday_nights"].fillna(0)).replace(0, np.nan)
+        guest_count = (out["num_adults"].fillna(0) + out["num_children"].fillna(0)).replace(0, np.nan)
 
-        out["total_nights"] = total_nights.replace(0, np.nan)
-        out["total_guests"] = total_guests.replace(0, np.nan)
         out["has_children"] = (out["num_children"].fillna(0) > 0).astype(int)
         out["is_family"] = (out["num_children"].fillna(0) > 0).astype(int)
         out["arrival_quarter"] = ((out["arrival_month"] - 1) // 3 + 1).astype(int)
         out["is_high_season"] = out["arrival_month"].isin([6, 7, 8, 12]).astype(int)
         out["days_before_arrival_log"] = np.log1p(out["days_before_arrival"].clip(lower=0))
 
-        out["nightly_rate_per_guest"] = out["nightly_rate_idr"] / total_guests.replace(0, np.nan)
-        out["total_room_cost"] = out["nightly_rate_idr"] * total_nights.replace(0, np.nan)
-        out["cost_per_guest"] = out["total_room_cost"] / total_guests.replace(0, np.nan)
+        out["nightly_rate_per_guest"] = out["nightly_rate_idr"] / guest_count
+        out["total_room_cost"] = out["nightly_rate_idr"] * stay_nights
+        out["cost_per_guest"] = out["total_room_cost"] / guest_count
 
-        hist_total = out["prior_cancellations"] + out["prior_completed_bookings"]
-        out["prior_cancel_ratio"] = out["prior_cancellations"] / hist_total.replace(0, np.nan)
-        out["has_prior_history"] = (hist_total > 0).astype(int)
-        out["requests_per_guest"] = out["special_requests"] / total_guests.replace(0, np.nan)
+        prior_bookings = (out["prior_cancellations"] + out["prior_completed_bookings"]).replace(0, np.nan)
+        out["prior_cancel_ratio"] = out["prior_cancellations"] / prior_bookings
+        out["has_prior_history"] = (
+            (out["prior_cancellations"].fillna(0) > 0)
+            | (out["prior_completed_bookings"].fillna(0) > 0)
+        ).astype(int)
+        out["requests_per_guest"] = out["special_requests"] / guest_count
 
         # Missingness indicators, computed before imputation.
         for col in MISSING_FLAG_COLS:
