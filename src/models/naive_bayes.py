@@ -78,6 +78,125 @@ class NaiveBayes(PersistableMixin):
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.classes_[np.argmax(self._joint_log_likelihood(X), axis=1)]
 
+class CategoricalNaiveBayes(NaiveBayes):
+
+    def __init__(
+        self,
+        n_bins: int = 20,
+        alpha: float = 1.0,
+        class_prior: np.ndarray | None = None,
+        class_weight: str | None = None,
+    ) -> None:
+        self.n_bins = n_bins
+        self.alpha = alpha
+        self.class_prior = class_prior
+        self.class_weight = class_weight
+
+    def _make_edges(self, X: np.ndarray) -> list[np.ndarray]:
+        edges = []
+        for j in range(X.shape[1]):
+            uniq = np.unique(X[:, j])
+            if len(uniq) <= self.n_bins: 
+                e = (uniq[:-1] + uniq[1:]) / 2.0
+                e = np.unique(np.quantile(X[:, j], np.linspace(0, 1, self.n_bins + 1)[1:-1]))
+            edges.append(e)
+        return edges
+
+    def _digitize(self, X: np.ndarray) -> np.ndarray:
+        X = np.asarray(X, dtype=np.float64)
+        return np.column_stack(
+            [np.searchsorted(self.edges_[j], X[:, j], side="right") for j in range(X.shape[1])]
+        )
+
+    def fit(self, X: np.ndarray, y: np.ndarray) -> "CategoricalNaiveBayes":
+        X = np.asarray(X, dtype=np.float64)
+        y = np.asarray(y)
+        self.classes_, y_idx = np.unique(y, return_inverse=True)
+        n_samples, n_features = X.shape
+        n_classes = len(self.classes_)
+
+        self.class_count_ = np.bincount(y_idx, minlength=n_classes).astype(np.float64)
+        if self.class_prior is not None:
+            prior = np.asarray(self.class_prior, dtype=np.float64)
+            self.class_prior_ = prior / prior.sum()
+        elif self.class_weight == "balanced":
+            prior = n_samples / (n_classes * self.class_count_)
+            self.class_prior_ = prior / prior.sum()
+        else:
+            self.class_prior_ = self.class_count_ / n_samples
+        self.bayesian_disweighting = np.log(self.class_prior_)
+
+        self.edges_ = self._make_edges(X)
+        B = self._digitize(X)
+        self.n_categories_ = np.array([len(e) + 1 for e in self.edges_])
+        max_cat = int(self.n_categories_.max())
+
+        self.log_theta_ = np.full((n_features, n_classes, max_cat), -np.inf)
+        for j in range(n_features):
+            m = self.n_categories_[j]
+            for c in range(n_classes):
+                counts = np.bincount(B[y_idx == c, j], minlength=m).astype(np.float64)
+                self.log_theta_[j, c, :m] = np.log(
+                    (counts + self.alpha) / (self.class_count_[c] + self.alpha * m)
+                )
+
+        log_proba = self.predict_log_proba(X)
+        self.negative_log_likelihood_ = float(-np.mean(log_proba[np.arange(n_samples), y_idx]))
+        self.n_features_in_ = n_features
+        return self
+
+    def _joint_log_likelihood(self, X: np.ndarray) -> np.ndarray:
+        B = self._digitize(X)
+        joint = np.tile(self.bayesian_disweighting, (len(B), 1))
+        for j in range(B.shape[1]):
+            joint += self.log_theta_[j][:, B[:, j]].T
+        return joint
+
 
 class BayesianNetwork(NaiveBayes):
     pass
+
+
+def macro_f1(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Macro F1 (rata-rata F1 per kelas) murni NumPy."""
+    scores = []
+    for c in np.unique(y_true):
+        tp = np.sum((y_pred == c) & (y_true == c))
+        fp = np.sum((y_pred == c) & (y_true != c))
+        fn = np.sum((y_pred != c) & (y_true == c))
+        denom = 2 * tp + fp + fn
+        scores.append(0.0 if denom == 0 else 2 * tp / denom)
+    return float(np.mean(scores))
+
+
+def backward_elimination(X, y, make_model, n_splits: int = 5, seed: int = 42, tol: float = 1e-4):
+    X = np.asarray(X, dtype=np.float64)
+    y = np.asarray(y)
+    rng = np.random.default_rng(seed)
+    folds = [[] for _ in range(n_splits)]
+    for c in np.unique(y): 
+        idx = rng.permutation(np.where(y == c)[0])
+        for i, chunk in enumerate(np.array_split(idx, n_splits)):
+            folds[i].extend(chunk.tolist())
+    folds = [np.array(f) for f in folds]
+
+    def cv_score(cols):
+        scores = []
+        for i in range(n_splits):
+            val = folds[i]
+            tr = np.concatenate([folds[k] for k in range(n_splits) if k != i])
+            m = make_model().fit(X[tr][:, cols], y[tr])
+            scores.append(macro_f1(y[val], m.predict(X[val][:, cols])))
+        return float(np.mean(scores))
+
+    cols = list(range(X.shape[1]))
+    current = cv_score(cols)
+    history = []
+    while len(cols) > 1:
+        score, drop = max((cv_score([c for c in cols if c != j]), j) for j in cols)
+        if score <= current + tol:
+            break
+        cols.remove(drop)
+        current = score
+        history.append((drop, score))
+    return cols, history
